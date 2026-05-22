@@ -7,14 +7,14 @@ import { TodoList } from './components/TodoList';
 
 export const App = () => {
   const [todos, setTodos] = useState(
-    todosFromServer.map((todo) => {
-      const user = usersFromServer.find((u) => u.id === todo.userId);
+    todosFromServer.map(todo => {
+      const user = usersFromServer.find(u => u.id === todo.userId);
 
       return { ...todo, user };
-    })
+    }),
   );
   const [title, setTitle] = useState('');
-  const [selectedUser, setSelectedUser] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState('');
   const [errors, setErrors] = useState({});
 
   const handleAddTodo = () => {
@@ -24,7 +24,7 @@ export const App = () => {
       newErrors.title = 'Please enter a title';
     }
 
-    if (!selectedUser) {
+    if (!selectedUserId) {
       newErrors.user = 'Please choose a user';
     }
 
@@ -34,18 +34,26 @@ export const App = () => {
       return;
     }
 
-    const user = usersFromServer.find((u) => u.id === parseInt(selectedUser));
+    const selectedUser = usersFromServer.find(
+      (user) => user.id === parseInt(selectedUserId)
+    );
+
+    if (!selectedUser) {
+      return;
+    }
+
     const newTodo = {
-      id: Math.max(...todos.map((t) => t.id)) + 1,
+      id: Math.max(...todos.map(t => t.id)) + 1,
       title,
       completed: false,
-      userId: user.id,
-      user,
+      userId: selectedUser.id,
+      user: selectedUser,
     };
 
     setTodos([...todos, newTodo]);
     setTitle('');
-    setSelectedUser('');
+    setSelectedUserId('');
+    setErrors({ title: '', user: '' });
   };
 
   return (
@@ -53,8 +61,8 @@ export const App = () => {
       <h1>Add todo form</h1>
 
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
+        onSubmit={(event) => {
+          event.preventDefault();
           handleAddTodo();
         }}
       >
@@ -63,9 +71,9 @@ export const App = () => {
             type="text"
             data-cy="titleInput"
             value={title}
-            onChange={(e) => {
-              setTitle(e.target.value.replace(/[^a-zA-Zа-яА-Я0-9 ]/g, ''));
-              setErrors((prev) => ({ ...prev, title: '' }));
+            onChange={(event) => {
+              setTitle(event.target.value.replace(/[^a-zA-Zа-яА-Я0-9 ]/g, ''));
+              setErrors((prevErrors) => ({ ...prevErrors, title: '' }));
             }}
             placeholder="Enter TODO title"
           />
@@ -75,14 +83,14 @@ export const App = () => {
         <div className="field">
           <select
             data-cy="userSelect"
-            value={selectedUser}
-            onChange={(e) => {
-              setSelectedUser(e.target.value);
-              setErrors((prev) => ({ ...prev, user: '' }));
+            value={selectedUserId}
+            onChange={(event) => {
+              setSelectedUserId(event.target.value);
+              setErrors((prevErrors) => ({ ...prevErrors, user: '' }));
             }}
           >
             <option value="">Choose a user</option>
-            {usersFromServer.map((user) => (
+            {usersFromServer.map(user => (
               <option key={user.id} value={user.id}>
                 {user.name}
               </option>

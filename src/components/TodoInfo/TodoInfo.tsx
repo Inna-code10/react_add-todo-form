@@ -1,14 +1,16 @@
-import React from 'react';
 import { UserInfo } from '../UserInfo/UserInfo';
 
 export const TodoInfo = ({ todo }) => {
+  const { id, title, completed, user } = todo; // розпаковуємо, щоб уникнути u чи t
+
   return (
     <article
-      data-id={todo.id}
-      className={`TodoInfo ${todo.completed ? 'TodoInfo--completed' : ''}`}
+      key={id}
+      data-id={id}
+      className={`TodoInfo ${completed ? 'TodoInfo--completed' : ''}`}
     >
-      <h2 className="TodoInfo__title">{todo.title}</h2>
-      <UserInfo user={todo.user} />
+      <h2 className="TodoInfo__title">{title}</h2>
+      <UserInfo user={user} />
     </article>
   );
 };
