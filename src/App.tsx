@@ -1,5 +1,4 @@
 import './App.scss';
-
 import { useState } from 'react';
 import usersFromServer from './api/users';
 import todosFromServer from './api/todos';
@@ -8,17 +7,18 @@ import { TodoList } from './components/TodoList';
 export const App = () => {
   const [todos, setTodos] = useState(
     todosFromServer.map(todo => {
-      const user = usersFromServer.find(u => u.id === todo.userId);
+      const user = usersFromServer.find(user => user.id === todo.userId);
 
       return { ...todo, user };
     }),
   );
+
   const [title, setTitle] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
   const [errors, setErrors] = useState({});
 
   const handleAddTodo = () => {
-    const newErrors = {};
+    const newErrors: Record<string, string> = {};
 
     if (!title.trim()) {
       newErrors.title = 'Please enter a title';
@@ -34,20 +34,20 @@ export const App = () => {
       return;
     }
 
-    const selectedUser = usersFromServer.find(
-      (user) => user.id === parseInt(selectedUserId)
+    const foundUser = usersFromServer.find(
+      user => user.id === parseInt(selectedUserId)
     );
 
-    if (!selectedUser) {
+    if (!foundUser) {
       return;
     }
 
     const newTodo = {
-      id: Math.max(...todos.map(t => t.id)) + 1,
+      id: todos.length > 0 ? Math.max(...todos.map(todo => todo.id)) + 1 : 1,
       title,
       completed: false,
-      userId: selectedUser.id,
-      user: selectedUser,
+      userId: foundUser.id,
+      user: foundUser,
     };
 
     setTodos([...todos, newTodo]);
@@ -61,19 +61,21 @@ export const App = () => {
       <h1>Add todo form</h1>
 
       <form
-        onSubmit={(event) => {
+        onSubmit={event => {
           event.preventDefault();
           handleAddTodo();
         }}
       >
         <div className="field">
+          <label htmlFor="titleInput">Todo title</label>
           <input
+            id="titleInput"
             type="text"
             data-cy="titleInput"
             value={title}
-            onChange={(event) => {
+            onChange={event => {
               setTitle(event.target.value.replace(/[^a-zA-Zа-яА-Я0-9 ]/g, ''));
-              setErrors((prevErrors) => ({ ...prevErrors, title: '' }));
+              setErrors(prevErrors => ({ ...prevErrors, title: '' }));
             }}
             placeholder="Enter TODO title"
           />
@@ -81,12 +83,14 @@ export const App = () => {
         </div>
 
         <div className="field">
+          <label htmlFor="userSelect">Assign to user</label>
           <select
+            id="userSelect"
             data-cy="userSelect"
             value={selectedUserId}
-            onChange={(event) => {
+            onChange={event => {
               setSelectedUserId(event.target.value);
-              setErrors((prevErrors) => ({ ...prevErrors, user: '' }));
+              setErrors(prevErrors => ({ ...prevErrors, user: '' }));
             }}
           >
             <option value="">Choose a user</option>
@@ -96,7 +100,6 @@ export const App = () => {
               </option>
             ))}
           </select>
-
           {errors.user && <span className="error">{errors.user}</span>}
         </div>
 
