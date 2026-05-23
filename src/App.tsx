@@ -7,15 +7,20 @@ import { TodoList } from './components/TodoList';
 export const App = () => {
   const [todos, setTodos] = useState(
     todosFromServer.map(todo => {
-      const user = usersFromServer.find(user => user.id === todo.userId);
+      const foundUser = usersFromServer.find(
+        currentUser => currentUser.id === todo.userId,
+      );
 
-      return { ...todo, user };
+      return { ...todo, user: foundUser };
     }),
   );
 
   const [title, setTitle] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    title: '',
+    user: '',
+  });
 
   const handleAddTodo = () => {
     const newErrors: Record<string, string> = {};
@@ -35,7 +40,7 @@ export const App = () => {
     }
 
     const foundUser = usersFromServer.find(
-      user => user.id === parseInt(selectedUserId)
+      user => user.id === parseInt(selectedUserId),
     );
 
     if (!foundUser) {
